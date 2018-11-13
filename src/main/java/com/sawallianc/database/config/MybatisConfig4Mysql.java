@@ -2,6 +2,7 @@ package com.sawallianc.database.config;
 
 import com.alibaba.druid.pool.DruidDataSource;
 import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInterceptor;
 import org.apache.ibatis.plugin.Interceptor;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionFactoryBean;
@@ -41,16 +42,14 @@ public class MybatisConfig4Mysql {
         bean.setDataSource(this.dataSource());
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
         bean.setMapperLocations(resolver.getResources(MAPPER_LOCATION));
-        PageHelper pageHelper = new PageHelper();
-        Properties props = new Properties();
-        props.setProperty("reasonable","true");
-        props.setProperty("supportMethodArguments","true");
-        props.setProperty("returnPageInfo","check");
-        props.setProperty("params","count=countSql");
-        props.setProperty("dialect","mysql");
-        props.setProperty("rowBoundsWithCount","true");
-        pageHelper.setProperties(props);
-        bean.setPlugins(new Interceptor[]{pageHelper});
+        Properties properties = new Properties();
+        properties.setProperty("helperDialect", "mysql");
+        properties.setProperty("offsetAsPageNum", "true");
+        properties.setProperty("rowBoundsWithCount", "true");
+        properties.setProperty("reasonable", "true");
+        Interceptor interceptor = new PageInterceptor();
+        interceptor.setProperties(properties);
+        bean.setPlugins(new Interceptor[]{interceptor});
         return bean.getObject();
     }
     @Bean
